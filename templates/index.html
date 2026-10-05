@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <title>__TITLE__</title>
+  <script src="vendor/gsap.min.js"></script>
+  <!-- 配乐节拍网格，由 build_music.py 生成 -->
+  <script src="beats.js"></script>
+  <style>
+    /* 字体子集由 build_fonts.py 生成（Noto，SIL OFL） */
+    @font-face { font-family: "Noto Sans SC"; src: url("fonts/NotoSansSC-sub.ttf") format("truetype"); font-weight: 100 900; font-display: block; }
+    @font-face { font-family: "Noto Serif SC"; src: url("fonts/NotoSerifSC-sub.ttf") format("truetype"); font-weight: 200 900; font-display: block; }
+    /* 色板：和 core.js 里 window.V 的同名常量一一对应，语义见 skill 的 references/style.md */
+    :root { --ink: #efe9df; --gold: #f2c46d; --silver: #c8ced8; --muted: #a39887; --dim: #7a6c58; --red: #e8794a; }
+    body { margin: 0; background: #0c0a07; }
+    #root {
+      position: relative; width: 1920px; height: 1080px; overflow: hidden;
+      background: radial-gradient(ellipse 70% 60% at 50% 42%, #221b12 0%, #15110b 55%, #0c0a07 100%);
+      font-family: "Noto Sans SC", sans-serif; color: var(--ink);
+    }
+    /* 中部暖光带（每小节脉动一次，见 core.js）+ 下半部极淡的横纹 */
+    #band {
+      position: absolute; left: -10%; right: -10%; top: 470px; height: 240px;
+      background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,180,90,0.12), transparent 70%);
+    }
+    #lines {
+      position: absolute; left: 0; right: 0; top: 560px; bottom: 0;
+      background: repeating-linear-gradient(to bottom, rgba(255,205,130,0.045) 0 1px, transparent 1px 18px);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 35%, #000 70%, transparent);
+      mask-image: linear-gradient(to bottom, transparent, #000 35%, #000 70%, transparent);
+    }
+    /* 左上角栏目名，右上角出处 */
+    #tag { position: absolute; left: 56px; top: 44px; font-size: 22px; letter-spacing: 3px; color: rgba(239,233,223,0.5); }
+    #cite { position: absolute; right: 56px; top: 44px; font-size: 22px; letter-spacing: 3px; color: var(--muted); }
+    #cite div { position: absolute; right: 0; top: 0; white-space: nowrap; opacity: 0; }
+    #cam, #stage { position: absolute; inset: 0; }
+    #cam { transform-origin: 50% 45%; }
+
+    /* 场景：各自一层，默认隐藏 */
+    .scene { position: absolute; inset: 0; opacity: 0; }
+    .scene > svg { position: absolute; left: 0; top: 0; }
+    .serif { font-family: "Noto Serif SC", serif; }
+    .t { position: absolute; left: 0; right: 0; text-align: center; }
+    .head { top: 118px; font-size: 32px; letter-spacing: 6px; color: rgba(239,233,223,0.85); }
+    .head i { display: block; width: 72px; height: 2px; margin: 16px auto 0; background: var(--gold); }
+    .quote { font-family: "Noto Serif SC", serif; font-size: 40px; letter-spacing: 6px; }
+    .quote b { color: var(--gold); font-weight: 700; }
+    .quote em { color: var(--silver); font-weight: 700; font-style: normal; }
+    .lbl { position: absolute; font-size: 28px; line-height: 28px; letter-spacing: 4px; color: var(--muted); }
+
+    /* 开头：题眼 + 问题（s0_open.js），第一帧就能读 */
+    #hook { top: 330px; font-size: 140px; font-weight: 800; letter-spacing: 12px; color: var(--gold); }
+    #q { top: 586px; font-size: 52px; font-weight: 700; letter-spacing: 2px; }
+    #q .key { position: relative; color: var(--gold); }
+    #q .ul { position: absolute; left: 0; right: 0; bottom: -12px; height: 3px; background: var(--gold); transform: scaleX(0); transform-origin: 0 50%; }
+
+    /* 场景专用样式加在这里 */
+
+    /* 字幕：白字，关键词金色 */
+    .cap { position: absolute; left: 0; right: 0; top: 896px; text-align: center; font-size: 48px; font-weight: 700; letter-spacing: 2px; opacity: 0; }
+    .cap b { color: var(--gold); font-weight: 700; }
+    #fade { position: absolute; inset: 0; background: #000; opacity: 0; }
+  </style>
+</head>
+<body>
+  <!-- 两处 data-duration 由 build_music.py 改写为配乐时长 -->
+  <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080" data-full>
+    <div id="band"></div>
+    <div id="lines"></div>
+    <div id="tag">__TAG__</div>
+    <div id="cite"></div>
+    <div id="cam"><div id="stage"></div></div>
+    <div id="caps"></div>
+    <div id="fade"></div>
+    <audio id="bgm" src="audio/bgm.wav" data-start="0" data-duration="10" data-track-index="0" data-full></audio>
+  </div>
+
+  <!-- 公共时间线在 core.js；每段场景一个文件，按时间顺序加在 s0_open.js 后面 -->
+  <script src="core.js"></script>
+  <script src="s0_open.js"></script>
+  <script src="captions.js"></script>
+  <script>
+    // 这里 DOM 已就绪：按顺序搭各段场景，都挂到 core.js 的同一条时间线上，再统一注册
+    window.V.parts.forEach(function (build) { build(); });
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = window.V.tl;
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "knowledge-video-toolchain",
+  "private": true,
+  "dependencies": {
+    "gsap": "3.14.2",
+    "hyperframes": "0.8.98"
+  }
+}

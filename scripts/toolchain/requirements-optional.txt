@@ -1,0 +1,10 @@
+# 可选，按需装：
+# demucs + torch：判断参考音轨里有没有人声（CPU 版即可。本机实测 torch 占 497 MB；
+#   demucs 首次运行会从网上下载 htdemucs 模型约 81 MB 到 ~/.cache/torch/hub/checkpoints）
+torch==2.14.1
+demucs==4.1.0
+julius==0.2.8
+lameenc==1.8.4
+PyYAML==6.0.3
+# shazamio：识别配乐曲目。会把音频指纹发到第三方，用前先告知用户
+shazamio==0.8.1
