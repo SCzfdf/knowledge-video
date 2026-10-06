@@ -9,6 +9,10 @@
   const tl = gsap.timeline({ paused: true });
   const $ = (id) => document.getElementById(id);
 
+  // 帧回调：主时间线每次更新（含 seek）时依次调用。3D 场景把 renderer.render 推进来（见 hyperframes.md「3D 场景」）
+  const frameHooks = [];
+  tl.eventCallback("onUpdate", function () { for (let i = 0; i < frameHooks.length; i++) frameHooks[i](); });
+
   // 场景层：第 b0 小节淡入（b0 = 0 时第一帧就可见），第 b1 小节前淡出；b1 = null 表示留到结尾
   function scene(id, html, b0, b1) {
     const el = document.createElement("div");
@@ -47,7 +51,7 @@
   }
 
   window.V = {
-    tl, at, B, BEAT, D, IR, $, scene, fadeIn, fadeOut, cite, parts: [background],
+    tl, at, B, BEAT, D, IR, $, scene, fadeIn, fadeOut, cite, parts: [background], frameHooks,
     // 色板：和 index.html 的 :root 一一对应（--ink、--gold……），语义见 skill 的 references/style.md
     INK: "#efe9df", GOLD: "#f2c46d", SILVER: "#c8ced8", MUTED: "#a39887", DIM: "#7a6c58", RED: "#e8794a",
   };

@@ -34,6 +34,31 @@ uv pip install --python "$PY" -r <skill>/scripts/toolchain/requirements-optional
 
 本机装的是 winget 的 Gyan.FFmpeg 9.0.2，不在默认 PATH 里。新机器用 `winget install --id Gyan.FFmpeg -e` 安装。
 
+## Three.js（按需，第一个 3D 项目时装）
+
+```bash
+(cd "$TC" && npm i three esbuild)   # 装完把版本写回本 skill 的 scripts/toolchain/package.json 并重新生成 lock（skill 目录是 git 仓库，顺手提交）
+```
+
+打包入口 `$TC/three-entry.js`：
+
+```js
+import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+window.THREE = THREE;
+Object.assign(THREE, { EffectComposer, RenderPass, UnrealBloomPass, OutputPass });
+```
+
+```bash
+"$TC/node_modules/.bin/esbuild" "$TC/three-entry.js" --bundle --minify --format=iife --outfile=<主题目录>/full/vendor/three.iife.js
+```
+
+- 打成单文件 classic 脚本（全局 `window.THREE`），不用 ES module：模块脚本执行时机在 body 末尾内联注册之后，会破坏 V.parts 的顺序（见 hyperframes.md「3D 场景」）。
+- 每个 3D 项目把 three.iife.js 放进 full/vendor/，在 index.html 里放开 gsap 下面那行注释掉的 script。
+
 ## 每条 Bash 命令都带上
 
 ```bash

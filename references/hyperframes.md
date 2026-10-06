@@ -30,6 +30,7 @@
 - 音频单独用 `<audio data-start data-duration data-track-index data-full>`；视频素材要静音。两处 data-duration 由 build_music.py 改写。
 - 只注册一条 paused 的根时间线；加进根时间线的子时间线不能 paused。
 - 补间一律用 `tl.fromTo(..., {...IR}, 时刻)`，`IR = {immediateRender:false}`，这样任意时刻 seek 结果都一样。例外：0 秒处的首帧补间不加 IR。
+- from 里写的属性，to 里也要写（哪怕值不变，如 `opacity: 1`）：只写在 from 里的属性，snapshot 里正常，但 render 逐帧 seek 时可能整段不渲染（第二期实测：水滴 opacity 只写 from，快照有、成片没有）。别只靠 snapshot 验收新画面，渲染后从成片里抽帧取色再核一遍。
 - 第一帧就可见的元素，不透明度从 0.92 起，不要从 0 起。否则对比度检查（WCAG AA）会把它当成看不清。
 - 禁用 `Math.random`、`Date.now`、网络请求。需要“散开”的排布用黄金角之类的固定算法（examples/fanzhe-jung/s4_diff.js:114-118）。
 - 有意的重叠加 `data-layout-allow-overlap`（s5_end.js:22），有意的溢出加 `data-layout-allow-overflow`（s4_diff.js:76）。
@@ -38,6 +39,19 @@
 - 带独立时长的计时元素要有 `class="clip"`、`data-start` 和时长。用 core.js 的 scene() 挂在主时间线上的不需要。
 - 字幕换条用 0.02 秒硬切，最后一条 0.25 秒淡出（templates/captions.js 已写好）。
 - 时刻一律用 `at(小节, 拍)`，不要手写秒数，配乐换了也不用改。
+
+## 3D 场景（Three.js，可选——具象主题优先，不硬用）
+
+什么时候用哪个维度见 style.md「3D 线框」。模板是 templates/s1_scene3d.js。
+
+- 引擎用 esbuild 打成单文件 classic 脚本 `vendor/three.iife.js`（方法见 env.md），在 index.html 里 gsap 之后引入；不引入时工程行为和原来完全一样。不用 ES module：模块脚本执行时机在 body 末尾内联注册之后，会破坏 V.parts 的顺序；importmap / addons 的裸导入同理绕开。
+- 渲染循环挂在主时间线更新上：场景把 `renderer.render(scene, camera)` 推进 `V.frameHooks`（core.js 已在 `tl` 的 onUpdate 里统一分发）。**禁用** rAF 自驱渲染、`performance.now()`、`THREE.Clock`、任何时钟增量——seek 到哪个时刻就渲染哪个时刻，和 fromTo + IR 是同一套确定性逻辑。
+- 渲染器参数：`preserveDrawingBuffer: true`、`setPixelRatio(1)`，保证 snapshot/render 截图拿到当前帧。
+- 相机和物体的一切运动都是挂在主时间线上的 fromTo 补间（相机位置、旋转、材质 opacity 都可以当补间目标）；不用 three 自带的动画系统。
+- 文字不走 WebGL：字幕、题眼、年份、标注全部是 DOM 层（字体子集、对比度检查、lint 只管 DOM）。canvas 里出现文字会导致缺字检查漏掉它。
+- check 不检查 canvas 里的内容：3D 画面的验收靠 snapshot + verify.md 的取色法（金线应落在 (242,196,109) 附近）。
+- 无头 Chrome 走 SwiftShader 软渲 WebGL：面数/线数控制在中等规模；render 时间会明显变长，渲染时长预期放宽（verify.md）。
+- 首个 3D 项目的验证清单（逐项确认后把结论写回本节）：lint 接受新增的 script 标签；snapshot 能截到 WebGL 画面；同一时刻截两次画面一致（确定性）；render 出片与 snapshot 一致。
 
 ## 命令（HF = 工具链里的 hyperframes 绝对路径，见 env.md）
 

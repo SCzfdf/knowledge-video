@@ -1,6 +1,6 @@
 # 技术栈
 
-画面是 HTML/CSS 加内联 SVG，GSAP 把所有动作排在一条 paused 时间线上，HyperFrames 驱动无头 Chrome 逐帧 seek、截图并编码成 mp4。配乐、节拍、字体子集由 Python 3.12 脚本生成，ffmpeg 负责抽音轨和校验。出片全程在本地跑，不调用在线服务。
+画面是 HTML/CSS 加内联 SVG（具象主题可选 Three.js 3D 线框，优先但不硬用），GSAP 把所有动作排在一条 paused 时间线上，HyperFrames 驱动无头 Chrome 逐帧 seek、截图并编码成 mp4。配乐、节拍、字体子集由 Python 3.12 脚本生成，ffmpeg 负责抽音轨和校验。出片全程在本地跑，不调用在线服务。
 
 下面的版本是本机实测可用的组合（第一期成片和 skill 冒烟测试都用它），锁在 scripts/toolchain/。安装见 env.md，写法限制见 hyperframes.md，画风数值见 style.md。
 
@@ -10,6 +10,7 @@
 |---|---|---|---|
 | 画面 | HTML + CSS + 内联 SVG | — | 线稿和大字都由代码画，没有素材版权问题；改一个字重新渲染就行 |
 | 动画 | GSAP，只用 core，不注册插件 | 3.14.2 | 拷进 `full/vendor/`，不走 CDN，渲染时不联网；许可是 GSAP Standard "no charge" license |
+| 画面（3D，可选） | Three.js，用 esbuild 打成单文件 IIFE 拷 `full/vendor/` | 首次启用时锁定 | 具象主题的结构线框和相机运动（MIT 许可）；classic 脚本引入，不动引导顺序；按需安装，方法见 env.md |
 | 渲染 | HyperFrames（HeyGen 开源，Apache-2.0） | 0.8.98 | 教程推荐。逐帧 seek 时间线再截图，配合 paused 时间线和 fromTo，同一时刻每次渲染都一样；自带 lint、check、snapshot |
 | 浏览器 | chrome-headless-shell，由 puppeteer-core 25.12.0 驱动 | 152.0.7977.30 | 第一次运行时自动下到 `~/.cache/hyperframes/chrome/` |
 | 运行时 | Node.js、npm | 24.14.0、11.9.0 | `npm ci` 按锁文件装；不用 npx（曾被权限检查拦下） |
@@ -49,9 +50,10 @@ index.html 的脚本顺序：`vendor/gsap.min.js` → `beats.js` → `core.js` �
 | `fadeIn(sel, t, y = 12, d = 0.4)`、`fadeOut(sel, t, d = 0.3)` | 常用的淡入、淡出 |
 | `cite(text, b0, b1)` | 右上角出处，从第 b0 小节显示到第 b1 小节前 |
 | `parts` | 构建函数列表，第一项是 background（光带脉动、推镜、结尾渐黑） |
+| `frameHooks` | 帧回调列表：主时间线 onUpdate 时依次调用；3D 场景把 `renderer.render` 推进来（2D 项目恒为空） |
 | `INK` `GOLD` `SILVER` `MUTED` `DIM` `RED` | 色板，和 index.html 的 CSS 变量一一对应，语义见 style.md |
 
-examples/fanzhe-jung/core.js 是第一期的版本，没有 `MUTED`。
+examples/fanzhe-jung/core.js 是第一期的版本，没有 `MUTED` 和 `frameHooks`。
 
 ## 代码约定（照 examples/fanzhe-jung）
 
