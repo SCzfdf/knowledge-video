@@ -49,6 +49,33 @@
     .quote b { color: var(--gold); font-weight: 700; }
     .quote em { color: var(--silver); font-weight: 700; font-style: normal; }
     .lbl { position: absolute; font-size: 28px; line-height: 28px; letter-spacing: 4px; color: var(--muted); }
+    .lbl2 { position: absolute; font-size: 26px; line-height: 26px; letter-spacing: 4px; color: var(--muted); }
+    #src { position: absolute; left: 0; right: 0; top: 596px; text-align: center; font-size: 28px; letter-spacing: 4px; color: var(--muted); opacity: 0; }
+
+    /* 逐字大字格：每格 210×200，left 给格中心、margin-left -105 居中；第二行 .l2 */
+    .ch, .mvIn { width: 210px; height: 200px; text-align: center; font-family: "Noto Serif SC", serif; font-weight: 800; font-size: 168px; line-height: 200px; color: var(--gold); }
+    .ch { position: absolute; top: 320px; margin-left: -105px; }
+    .ch.l2 { top: 470px; opacity: 0; }
+    /* 转臂：让元素绕圆心走（.arm 定在圆心，元素放 .mv 里，用 .armIn 的 x/y 定半径） */
+    .arm { position: absolute; left: 960px; top: 450px; width: 0; height: 0; }
+    .armIn { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+    .mv { position: absolute; left: -105px; top: -100px; width: 210px; height: 200px; }
+    /* 双面圆牌：scaleX 压扁瞬间换面（写法见 hyperframes.md 动画模式） */
+    .coinW { position: absolute; left: 810px; top: 330px; width: 300px; height: 300px; }
+    .coin, .face { position: absolute; inset: 0; }
+    .face { border-radius: 50%; text-align: center; font-family: "Noto Serif SC", serif; font-weight: 800; font-size: 150px; line-height: 294px; }
+    .face.g { color: var(--gold); border: 3px solid var(--gold); background: radial-gradient(circle at 50% 40%, #33280f, #17120a); }
+    .face.s { color: var(--silver); border: 3px solid var(--silver); background: radial-gradient(circle at 50% 40%, #2a2620, #15120d); }
+    /* 两栏对照 */
+    .col { position: absolute; width: 520px; text-align: center; }
+    .col.l { left: 140px; } .col.r { left: 1260px; }
+    .who { font-size: 26px; letter-spacing: 6px; color: var(--muted); }
+    .big { font-family: "Noto Serif SC", serif; font-size: 56px; font-weight: 700; color: var(--gold); margin-top: 14px; }
+    .note { font-size: 24px; letter-spacing: 3px; color: var(--muted); margin-top: 12px; }
+    .colh { position: absolute; top: 214px; width: 400px; text-align: center; font-family: "Noto Serif SC", serif; font-size: 44px; font-weight: 700; letter-spacing: 8px; }
+    .lab { position: absolute; top: 680px; width: 640px; text-align: center; font-family: "Noto Serif SC", serif; font-size: 48px; font-weight: 700; color: var(--gold); }
+    /* 会被 scale 的 SVG 组加 ns 类：线宽不跟着变 */
+    .ns * { vector-effect: non-scaling-stroke; }
 
     /* 开头：题眼 + 问题（s0_open.js），第一帧就能读 */
     #hook { top: 330px; font-size: 140px; font-weight: 800; letter-spacing: 12px; color: var(--gold); }

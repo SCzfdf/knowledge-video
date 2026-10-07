@@ -23,7 +23,7 @@ HF、PY、SK 见 env.md。命令都在 `<主题目录>` 下执行；截图和临
 模型读不了图片时（Read 图片报“does not support image input”），不要反复重试：
 - 布局、溢出、对比度交给 check 把关；
 - 空白帧用亮度统计查：`for f in review/snap/frame-*.png; do echo "$f $(ffmpeg -hide_banner -i "$f" -vf signalstats,metadata=print -f null - 2>&1 | grep -oE 'YMAX=[0-9]+')"; done`。YMAX 低于 150 的帧只剩背景和栏目名（实测约 122），确认是不是有意的；
-- 关键画面用取色核对（第二期全程靠它验收）：先按设计算出元素在该时刻的位置和颜色，再用下面的 `an()` 裁一小块统计。算中间时刻时注意 GSAP 的 power2 是三次方曲线，power1 才是二次。实测参考色：金 (242,196,109)，银 (200,206,216)，米白字 (239,233,223)，muted 小字 (163,152,135)，暗字 (122,108,88)，透明度 0.85 的金色描边约 (210,171,96)，背景最暗处约 (21,18,11)；
+- 关键画面用取色核对：先按设计算出元素在该时刻的位置和颜色，再用下面的 `an()` 裁一小块统计。算中间时刻时注意 GSAP 的 power2 是三次方曲线，power1 才是二次。实测参考色：金 (242,196,109)，银 (200,206,216)，米白字 (239,233,223)，muted 小字 (163,152,135)，暗字 (122,108,88)，透明度 0.85 的金色描边约 (210,171,96)，背景最暗处约 (21,18,11)；
 - 画风和意象请用户看一眼 `review/snap/contact-sheet.jpg`（snapshot 自动生成的 9 宫格）。
 
 取色函数（PY 见 env.md）。参数依次是 png 路径、裁剪区域的中心 x、中心 y、宽、高、说明；打印最亮的像素和金、银、亮三类像素的个数：
@@ -46,7 +46,7 @@ s, r, g, bl, i = best
 print(f"max=({r},{g},{bl})@({i % W + x0},{i // W + y0}) 金={gold} 银={silver} 亮={bright}/{n}")
 ' "$4" "$x0" "$y0"
 }
-an review/s3/frame-00-at-37.2s.png 610 450 170 170 弱      # 金色上万：“弱”亮着
+an review/snap/frame-01-at-10s.png 960 450 170 170 主体    # 金色计数上万：主体亮着
 an review/snap/frame-00-at-0s.png 960 1026 1920 100 字幕下  # 亮=0：字幕下方没有图形
 ```
 
@@ -57,7 +57,7 @@ an review/snap/frame-00-at-0s.png 960 1026 1920 100 字幕下  # 亮=0：字幕�
 ```
 
 - 约 1 倍实时，80 秒的片子要一两分钟以上。用后台方式运行，然后轮询输出，不要前台干等到超时。只想快速看效果用 `-q draft`（10 秒的片子约 20 秒出完）。
-- 日志里的 `Auto-worker calibration failed`、`blank-frame suspect; re-capturing`、`N capture workers may exceed V8 heap` 是 WARN：渲染器会自动改用保守并发、重拍那一帧，不算失败（第二期 79 秒的片子降到 3 个 worker，1 分 17 秒渲完）。以退出码和渲染后的检查为准。
+- 日志里的 `Auto-worker calibration failed`、`blank-frame suspect; re-capturing`、`N capture workers may exceed V8 heap` 是 WARN：渲染器会自动改用保守并发、重拍那一帧，不算失败。以退出码和渲染后的检查为准。
 - 真失败时先看报错原文：页面加载超时加 `--browser-timeout <秒>`，Chrome 操作超时加 `--protocol-timeout <毫秒>`，播放器就绪超时加 `--player-ready-timeout <毫秒>`，内存不够用 `-w 1` 或 `--low-memory-mode`。
 
 ## 渲染后
@@ -79,7 +79,7 @@ ffmpeg -hide_banner -i "$M" -vf "select='not(mod(n\,$((N / 9))))+eq(n\,$((N - 1)
 | 响度 | I 约 -14 LUFS，Peak 不超过 -1 dBFS 左右 |
 | verify_audio.py | 偏移 ≤ 5 ms，相关系数 ≥ 0.98，帧数 ≈ 时长 × 30（退出码 0） |
 | render_sheet.jpg | 9 张缩略图和分镜对得上，没有黑帧、空白帧，结尾渐黑 |
-| 亮度统计 | 除最后一帧和结尾渐黑段（最后 fade 秒，见 beats.js）里的帧外，YMAX > 150（有亮字；第一期 205–224，只剩背景和栏目名时约 122–134）；最后一帧 YMAX < 40（渐黑到底，第一期 24） |
+| 亮度统计 | 除最后一帧和结尾渐黑段（最后 fade 秒，见 beats.js）里的帧外，YMAX > 150（有亮字时通常 200+；只剩背景和栏目名时约 122–134）；最后一帧 YMAX < 40（渐黑到底） |
 
 ## 收尾
 

@@ -7,8 +7,6 @@ description: 把一个知识点做成无配音、纯字幕、画面按配乐节�
 
 把一个知识点做成 1 分钟以内的横屏短视频：不配音，全靠字幕讲；画面是代码绘制的线稿和大字（2D 用 HTML/SVG + GSAP；具象主题优先 Three.js 3D 线框，不硬用），跟着参考视频原音轨的小节切换；最后用 HyperFrames 渲染成 mp4。
 
-做过两期：「反者道之动 x 荣格」（87.6 秒，场景代码在 examples/fanzhe-jung/，只供阅读）；「反者道之动，弱者道之用」（用户已确认的分片文案：examples/01_分片文案_弱者道之用.md）。
-
 开工或恢复工作时，先读 `<主题目录>/PROGRESS.md`（new_project.sh 会建），从“下一步”接着做，不凭记忆。
 
 ## 三关（用户只把控这三处，其余照 references 自己定）
@@ -27,9 +25,9 @@ description: 把一个知识点做成无配音、纯字幕、画面按配乐节�
 
 - 每条知识点都核对出处，查不到或只在博客、营销号上见过的就删；原典和后世说法分开写（workflow.md）。
 - 不配音，只用字幕：一小节一条，不计标点一般 ≤ 12 字、最多 13 字（算上标点 ≤ 16）；每条一处 `<b>` 金色关键词（对举句可两处，纯过渡句可不加）；口语，不用感叹号，删掉套话。
-- 第一帧就亮出题眼和问题。一屏一个意象，画面只演当前这条字幕。配色、字号、版面、动效照 references/style.md（v2，数值已写进 templates 的 CSS 变量和 V 常量），避开深色配紫、蓝霓虹这类“AI 风”。
+- 第一帧就亮出题眼和问题。画面只演当前这条字幕说的事——可以丰富，但不加无关元素。配色、字号、版面、动效照 references/style.md（v2，数值已写进 templates 的 CSS 变量和 V 常量），避开深色配紫、蓝霓虹这类“AI 风”。
 - 时间严格控制在配乐时长内，不能超：字幕、场景、结尾定格的最后一拍都落在配乐最后一个小节内，结尾渐黑在 fade 段收完。塞不下就减内容或换更长的配乐段，不许手改 index.html 的 data-duration 把画面拉到配乐之外（两处 data-duration 只由 build_music.py 改写）。
-- 背景音用参考视频的原音轨。有版权的（上次是 Akinari《若如初见 (Slowed)》）交付时提醒用户。
+- 背景音用参考视频的原音轨。有版权的交付时提醒用户，曲名写进交付说明。
 - 旧工程目录只读：不改文件，不往里装包。
 - 不往第三方发内容：snapshot 一律 `--describe false`，环境变量带 `HYPERFRAMES_NO_TELEMETRY=1`，shazamio 识曲先征得用户同意。不打印密钥、令牌。
 
@@ -44,19 +42,19 @@ description: 把一个知识点做成无配音、纯字幕、画面按配乐节�
 ## 风格（细节见 references/style.md）
 
 - 暗色暖调底，金 `#f2c46d`、银 `#c8ced8` 两色的线稿和大字：金是主角和关键词，银是反面和对照，金变银就是“转向反面”。
-- 维度选择：主题有实体形态（建筑、器物、机械、地理、生物结构）优先 3D 线框；抽象概念继续 2D 极简。优先但不硬用——3D 讲不清的用 2D，反之亦然；一期里可混用，一屏一个意象不变。数值见 style.md「3D 线框」。
-- 一屏一个主意象，大量留白；字不装进硬币、卡片、竹简这类容器（图形本身在演这条字幕时除外，如祸福圆牌，见 style.md）；字重 700–800，不用 900。
-- 极简是风格，精致是底线：一屏一个意象是取舍不是省事——留下的每一笔（位置、线宽、透明度、时机）都经得起定格细看；随便定格一帧，能当一张海报（见 style.md「极简与精致」）。
+- 维度选择：主题有实体形态（建筑、器物、机械、地理、生物结构）优先 3D 线框；抽象概念继续 2D。优先但不硬用——3D 讲不清的用 2D，反之亦然；一期里可混用，每个镜头聚焦一个主意象。数值见 style.md「3D 线框」。
+- 整屏都是画布：画面可以丰富精致，不要小气；但不为复杂而复杂——每个元素都有用、和当前字幕相关，无用或相关性低的不加。字不装进硬币、卡片、竹简这类容器（图形本身在演这条字幕时除外，如双面圆牌，见 style.md）；字重 700–800，不用 900。
+- 精致是风格也是底线：每个元素（位置、线宽、透明度、时机）都经得起定格细看；随便定格一帧，能当一张海报（见 style.md「精致」）。
 - 一小节一个镜头、一条字幕，强调落在拍点上，动作演出字幕的意思；最关键的一句放在配乐高潮起点。
 - 不用照片、插画、音效、配音。avoid：紫色或蓝色霓虹、赛博网格、满屏发光粒子，以及 v1 被否的硬币、卡片、浮尘、900 字重。
 
 ## 出片步骤
 
-SK = 本 skill 目录；HF、PY = 工具链里的 hyperframes 和 python.exe。工具链安装、每条 Bash 要带的环境变量见 references/env.md（本机第一期工程里已有一套，直接复用）。
+SK = 本 skill 目录；HF、PY = 工具链里的 hyperframes 和 python.exe。工具链安装、每条 Bash 要带的环境变量见 references/env.md（本机已有工程里装过一套，直接复用）。
 
 1. `bash "$SK/scripts/new_project.sh" <主题目录> <node_modules 所在目录>`：建 full/、output/、PROGRESS.md，并列出待替换的占位符。
 2. 替换占位符。先读 style.md 定意象和版面，再按分片文案写 `full/sN_*.js` 和 `captions.js`；写法限制见 hyperframes.md，动画套路按其中的索引查 examples。
-3. `"$PY" "$SK/scripts/build_music.py" <参考视频> <主题目录>/full --fade 2.0`。样片改为 `--duration <第 5 小节重拍稍后> --fade 0.7`（上次 10.62）。按打印的小节表和各小节响度排文案（music-fonts.md）。
+3. `"$PY" "$SK/scripts/build_music.py" <参考视频> <主题目录>/full --fade 2.0`。样片改为 `--duration <第 5 小节重拍稍后> --fade 0.7`。按打印的小节表和各小节响度排文案（music-fonts.md）。
 4. `"$PY" "$SK/scripts/build_fonts.py" <主题目录>/full`，确认没有缺字。改了字就重跑。
 5. `"$HF" lint full` → `"$HF" check full --at-transitions` → `"$HF" snapshot full --frames 9 --describe false -o review/snap`，逐张看图；模型读不了图时按 verify.md 的替代办法。
 6. 后台运行 `"$HF" render full -o "output/<名字>.mp4" -q delivery`，轮询到结束。
@@ -77,11 +75,11 @@ SK = 本 skill 目录；HF、PY = 工具链里的 hyperframes 和 python.exe。�
 | references/env.md | 工具链安装、环境变量、Git Bash 的坑、本机可复用的环境 |
 | templates/ | index.html（色板 CSS 变量）、core.js（时间线工具、frameHooks 和 V 色板常量）、s0_open.js、s1_scene3d.js（3D 线框场景模板）、captions.js、PROGRESS.md |
 | scripts/ | new_project.sh、build_music.py、build_fonts.py、verify_audio.py、toolchain/（锁定版本） |
-| examples/ | 第一期全部场景代码，第二期分片文案 |
+| assets/ | default.mp3：默认参考音源（见 music-fonts.md「默认参考音源」） |
 
 ## 防模型异常：主线程只做总结 / 分派 / 重试
 
-这是用户的要求。前两期出过会话无法继续、输出超长被截断、长命令卡住、上下文压缩后丢了用户的新指令、子代理返回 400 “Model not exist”，根源都是主线程在一个上下文里干了太多活。细则见 references/orchestration.md。
+这是用户的要求。出过的故障：会话无法继续、输出超长被截断、长命令卡住、上下文压缩后丢了用户的新指令、子代理返回 400 “Model not exist”——根源都是主线程在一个上下文里干了太多活。细则见 references/orchestration.md。
 
 - 总结：维护 PROGRESS.md（用户原话、关卡、任务卡、最近一次失败、下一步），向用户简短汇报。
 - 分派：查资料、写文案、写场景代码、跑命令、渲染、校验，切成小卡交给子代理。一张卡一个产物，带验收命令，回传只要一行。尽可能并发：互不碰同一文件的卡，在一条消息里同时派出，不等前一张回传；并发是默认，串行要写明理由（改同一文件、依赖前卡产物）。

@@ -2,7 +2,7 @@
 
 画面是 HTML/CSS 加内联 SVG（具象主题可选 Three.js 3D 线框，优先但不硬用），GSAP 把所有动作排在一条 paused 时间线上，HyperFrames 驱动无头 Chrome 逐帧 seek、截图并编码成 mp4。配乐、节拍、字体子集由 Python 3.12 脚本生成，ffmpeg 负责抽音轨和校验。出片全程在本地跑，不调用在线服务。
 
-下面的版本是本机实测可用的组合（第一期成片和 skill 冒烟测试都用它），锁在 scripts/toolchain/。安装见 env.md，写法限制见 hyperframes.md，画风数值见 style.md。
+下面的版本是本机实测可用的组合，锁在 scripts/toolchain/。安装见 env.md，写法限制见 hyperframes.md，画风数值见 style.md。
 
 ## 各层选型
 
@@ -53,15 +53,13 @@ index.html 的脚本顺序：`vendor/gsap.min.js` → `beats.js` → `core.js` �
 | `frameHooks` | 帧回调列表：主时间线 onUpdate 时依次调用；3D 场景把 `renderer.render` 推进来（2D 项目恒为空） |
 | `INK` `GOLD` `SILVER` `MUTED` `DIM` `RED` | 色板，和 index.html 的 CSS 变量一一对应，语义见 style.md |
 
-examples/fanzhe-jung/core.js 是第一期的版本，没有 `MUTED` 和 `frameHooks`。
-
-## 代码约定（照 examples/fanzhe-jung）
+## 代码约定（照 templates/）
 
 - 场景文件的骨架：`window.V.parts.push(function () { const { tl, at, IR, scene, … } = window.V; … });`，只解构用到的成员。
-- 文件头注释写覆盖哪几小节、讲什么，如 `// 第 6–9 小节：老子。草木（第七十六章）→ 祸福（第五十八章）`；小节内用分隔注释，如 `// ---------- 第 0 小节：题眼 + 问题，第 1 帧就能读 ----------`。
+- 文件头注释写覆盖哪几小节、讲什么，如 `// 第 6–9 小节：本段主题。意象A → 意象B`；小节内用分隔注释，如 `// ---------- 第 0 小节：题眼 + 问题，第 1 帧就能读 ----------`。
 - 注释用中文，讲意图，不复述代码。
 - 常量全大写（`LIVE`、`DEAD`、`FIG`、`ON`、`OFF`）。颜色用 V 的常量或 CSS 变量，不在场景里写新色值（辅助暗色例外，见 style.md）。
-- 场景专用样式加在 index.html 的 `/* 场景专用样式加在这里 */` 处。id 全片唯一：结尾复用开头的结构时加前缀（s0 的 `#guide`、`#mvIn` 到 s5 叫 `#eGuide`、`#eMvIn`）。
+- 场景专用样式加在 index.html 的 `/* 场景专用样式加在这里 */` 处。id 全片唯一：结尾复用开头的结构时加前缀（如 `#guide` 到结尾场景叫 `#eGuide`）。
 
 ## hyperframes 命令取舍
 
@@ -89,15 +87,15 @@ telemetry 也不用跑，遥测用环境变量关（env.md）。以上是 0.8.98
 
 ## 规格
 
-| | 参考视频（前两期同一个） | 成片 |
-|---|---|---|
-| 视频 | h264 1024×576，30/1，约 347 kbps | h264 1920×1080，30/1 |
-| 音频 | aac 44.1 kHz 双声道，128 kbps，无人声 | aac 48 kHz 双声道，-14 LUFS，峰值 ≤ -1 dBFS |
-| 时长 | 79.087 秒 | 等于配乐时长 |
+| 成片 | 规格 |
+|---|---|
+| 视频 | h264 1920×1080，30/1 |
+| 音频 | aac 48 kHz 双声道，-14 LUFS，峰值 ≤ -1 dBFS |
+| 时长 | 等于配乐时长（≤ 60 秒，见 workflow.md） |
 
 ## 升级任何一项之前
 
-先在副本里重跑冒烟测试：new_project.sh → build_music.py `--duration 10.62 --fade 0.7` → build_fonts.py → lint → check → snapshot → render `-q draft` → verify.md 里渲染后的检查。另外重新确认：
+先在副本里重跑冒烟测试：new_project.sh → build_music.py `--duration <约 10 秒> --fade 0.7` → build_fonts.py → lint → check → snapshot → render `-q draft` → verify.md 里渲染后的检查。另外重新确认：
 
 - 两个 HYPERFRAMES_* 环境变量还有效（env.md 写了在源码哪里查）；
 - lint、check 的规则有没有变（首帧不透明度、时间线注册方式、data-* 属性）；

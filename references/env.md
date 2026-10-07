@@ -76,14 +76,14 @@ export HYPERFRAMES_NO_UPDATE_CHECK=1   # 关更新检查，也就不会自动升
 - `cd` 之后，工作目录会一直保留到后面的命令；cd 到工作区以外时，会被重置回工作区。一律写绝对路径，不依赖当前目录。
 - Windows 版 Python 读不到 Git Bash 的 `/tmp`。临时文件写进工程目录，用完删掉。
 - 写已有的文件之前先 Read。
-- 不要 `cd` 进临时目录：Windows 上只要有进程把当前目录停在某个文件夹里，这个文件夹就删不掉（Device or resource busy）。命令里用绝对路径；删不掉时先查是谁占着，不要强杀用户自己的程序（上次占着的是输入法进程），空目录留给用户处理即可。
+- 不要 `cd` 进临时目录：Windows 上只要有进程把当前目录停在某个文件夹里，这个文件夹就删不掉（Device or resource busy）。命令里用绝对路径；删不掉时先查是谁占着，不要强杀用户自己的程序；空目录留给用户处理即可。
 - 调用 Windows 原生命令（如 `cmd /c mklink /J`）时，`/J` 这类参数会被 Git Bash 当成路径改写，报“无效参数”。前面加 `MSYS_NO_PATHCONV=1` 即可。cmd 的输出是 GBK 编码，显示为乱码属正常。
 
-## 本机可复用的环境
+## 本机已装好的环境（本机专用，别的机器按上面装）
 
-工作区是 `C:\Users\User\AppData\Roaming\CherryStudio\Data\Agents\system\2026-09-08\cdb70fb2-23e9-44a0-9e19-1d34b9bf87d5`，第一期工程 `反者道之动x荣格\` 里已经装全：
+工作区 `C:\Users\User\AppData\Roaming\CherryStudio\Data\Agents\system\2026-09-08\cdb70fb2-23e9-44a0-9e19-1d34b9bf87d5` 下的旧工程目录（`反者道之动x荣格/`）里已经装全：
 
-- `HF=<工作区>/反者道之动x荣格/node_modules/.bin/hyperframes`；new_project.sh 的第 2 个参数传 `<工作区>/反者道之动x荣格`
-- `PY=<工作区>/反者道之动x荣格/.venv/Scripts/python.exe`，必需包和可选包都装好了
+- `HF=<该工程>/node_modules/.bin/hyperframes`；new_project.sh 的第 2 个参数传 `<该工程>`
+- `PY=<该工程>/.venv/Scripts/python.exe`，必需包和可选包都装好了
 
-只调用，不往里面装新包：第一期工程要保持原样。
+只调用，不往里面装新包：旧工程保持原样。

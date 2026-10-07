@@ -4,11 +4,10 @@ PY = 工具链里的 python.exe，SK = skill 目录，见 env.md。中间文件�
 
 ## 0. 默认参考音源
 
-- 文件：`C:\Users\User\kv-ref\we-never_0.9x_若如初见slowed_4m36s.mp3`（4:36，320k MP3 约 11 MB，实测 BPM≈112.3）。用户没指定参考音源时默认用它。
-- 身份：抖音《若如初见 (Slowed)》= Hi Noise《We Never》的慢速版。Shazam 两次识别一致（track key 894305773，曲名挂 Akinari，按发行信息原曲是 Hi Noise）。前两期的 79 秒参考是同曲的抖音剪辑（BPM 112.912），节奏感觉一致。
-- 注意：网上能下到的各版本（网易云各上传、YouTube 原版/0.9x）指纹都不等于前两期那条抖音剪辑的母带（互相关最高只有 0.33）。用本版时一切按 build_music.py 重新测的节拍表排文案，不要套前两期的 at() 常数。
+- 文件：`assets/default.mp3`（随 skill 分发；4:36，320k MP3 约 11 MB，实测 BPM≈112.3）。用户没指定参考音源时默认用它——build_music.py 的 `<参考视频>` 参数直接给这个文件（SK = skill 目录）。
+- 身份：抖音《若如初见 (Slowed)》= Hi Noise《We Never》的慢速版。Shazam 两次识别一致（track key 894305773，曲名挂 Akinari，按发行信息原曲是 Hi Noise）。
+- 注意：网上能下到的各版本（网易云各上传、YouTube 原版/0.9x）指纹互不相同。用本版时一切按 build_music.py 重新测的节拍表排文案，不要套旧项目的 at() 常数。
 - 版权：Hi Noise 版权曲目；抖音音乐库搜“若如初见”有同曲，发布时走平台音乐库或授权范围，交付说明写曲名。
-- 存放纪律：放在 skill 目录外、不进 git（skill 已上 GitHub，版权文件不能入库）。
 
 ## 1. 先弄清参考音轨（可选，但第一次用某个参考视频时建议做）
 
@@ -20,7 +19,7 @@ ffmpeg -hide_banner -loglevel error -y -i <参考视频> -vn -ac 2 -ar 44100 ref
 "$PY" -c "import soundfile as sf,numpy as np;db=lambda p:20*np.log10(np.sqrt((sf.read(p)[0]**2).mean())+1e-12);d='ref_audio/sep/htdemucs/ref_full/';print('人声',round(db(d+'vocals.wav'),1),'伴奏',round(db(d+'no_vocals.wav'),1))"
 ```
 
-- 上次的参考音轨：人声轨约 -71 dB，伴奏约 -10 dB，判为纯音乐。
+- 判据例：人声轨约 -71 dB、伴奏约 -10 dB，差 50 dB 以上判为纯音乐。
 - 有人声时，可以把 `no_vocals.wav` 当配乐源交给 build_music.py，免得唱词和字幕抢注意力。
 - demucs 第一次运行会下载约 81 MB 的模型。
 
@@ -38,14 +37,14 @@ async def main():
 asyncio.run(main())"
 ```
 
-上次识别出来是 Akinari《若如初见 (Slowed)》，有版权：交付时提醒用户，配乐只适合在平台的音乐库或授权范围内使用。
+识别出有版权的，交付时提醒用户：配乐只适合在平台音乐库或授权范围内使用。
 
 ## 2. 截取配乐、测节拍：scripts/build_music.py
 
 先放好 index.html，再跑（它会改写 index.html 里两处 data-duration）。
 
 ```bash
-"$PY" "$SK/scripts/build_music.py" <参考视频> <主题目录>/full --duration 10.62 --fade 0.7         # 10 秒样片
+"$PY" "$SK/scripts/build_music.py" <参考视频> <主题目录>/full --duration <第 5 小节重拍稍后> --fade 0.7   # 10 秒样片
 "$PY" "$SK/scripts/build_music.py" <参考视频> <主题目录>/full --fade 2.0                          # 完整版：整首 ≤60 秒才这样用
 "$PY" "$SK/scripts/build_music.py" <参考视频> <主题目录>/full --splice 44.60:36.10 --fade 2.5     # 加长：播到 44.6 秒跳回 36.1 秒
 ```
@@ -55,20 +54,20 @@ asyncio.run(main())"
 - 算法假设整首速度恒定。现场录音、渐快渐慢的曲子不适用，网格会漂。
 - 打印的“低频相位强度”四个数里，最大的那个应该明显突出。四个数差不多大时，重拍可能判错，换一段鼓点清楚的片段。
 - `--splice`：两个时刻都会吸附到最近的小节重拍，接口处做 30 ms 等功率交叉淡化，节拍网格保持连续。
-- 样片的 `--duration` 取第 5 小节重拍稍后一点（上次是 10.62 秒），正好覆盖第 0–4 小节。
+- 样片的 `--duration` 取第 5 小节重拍稍后一点，正好覆盖第 0–4 小节。
 - 完整版成片控制在 1 分钟以内：整首超过 60 秒时，用 `--duration` 截到尾声前合适的小节重拍（配合 `--fade`），或用 `--splice` 剪掉中段；不要整首硬用。
 
 ## 3. 小节换算
 
 core.js 里：`at(bar, beat) = max(0, t0 + (downbeat + 4(bar−1) + beat) × beat秒数)`。第 1 小节是片段里的第一个小节重拍；第 0 小节是它前面那一段，不满一小节就从 0 秒算。
 
-上次的参考曲：112.912 BPM，每拍 0.53139 秒，t0 = 0.492，downbeat = 3，所以 `at(n) = 2.086 + 2.12556 × (n−1)` 秒。
+例：测得 112.9 BPM（每拍 0.5314 秒）、t0 = 0.492、downbeat = 3 时，`at(n) = 2.086 + 2.1256 × (n−1)` 秒。
 
 ## 4. 配乐分段
 
 用逐小节响度划出前奏、高潮、回落、尾声。“最关键的那句”放在高潮起点的小节重拍上，结尾的定格放在尾声里。
 
-上次的参考曲：前奏 0–17 秒 → 高潮 17–51 秒 → 回落 51–68 秒 → 稍回升 68–72 秒 → 尾声 72 秒到结束。
+例：前奏 0–17 秒 → 高潮 17–51 秒 → 回落 51–68 秒 → 稍回升 68–72 秒 → 尾声到结束。
 
 ## 5. 字体子集：scripts/build_fonts.py
 
@@ -78,5 +77,5 @@ core.js 里：`at(bar, beat) = max(0, t0 + (downbeat + 4(bar−1) + beat) × bea
 
 - 扫描 full/ 第一层的 .html 和 .js（不含 vendor/），把用到的字从 Noto Sans SC / Noto Serif SC 可变字体里裁出来，放到 `full/fonts/`。
 - 每次改了字幕或画面文字都要重跑，否则新加的字会渲染成方框或回退字体。
-- 输出里有“缺字”就必须处理：换字或换字体。生僻字（上次的“锺”“鹖”“槁”）要看一眼输出确认没有缺。
+- 输出里有“缺字”就必须处理：换字或换字体。有生僻字要看一眼输出确认没有缺。
 - Noto 是 SIL OFL 许可，可以子集化嵌入。交付说明里写明。
