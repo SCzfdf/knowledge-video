@@ -83,7 +83,8 @@
     #q .key { position: relative; color: var(--gold); }
     #q .ul { position: absolute; left: 0; right: 0; bottom: -12px; height: 3px; background: var(--gold); transform: scaleX(0); transform-origin: 0 50%; }
 
-    /* 场景专用样式加在这里 */
+    /* 公共样式到此为止。场景专用样式写在各 sN 场景文件里（scene() 的 css 参数）；
+       本文件由骨架卡一次写死（占位符 + 全部场景 script 引入 + 场景 stub），之后冻结，场景卡不再改它 */
 
     /* 字幕：白字，关键词金色 */
     .cap { position: absolute; left: 0; right: 0; top: 896px; text-align: center; font-size: 48px; font-weight: 700; letter-spacing: 2px; opacity: 0; }

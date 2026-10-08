@@ -69,8 +69,8 @@
 关卡 2 和 3（样片、完整视频）：
 
 1. new_project.sh + build_music.py，生成 beats.js、bgm.wav，回传小节表；
-2. index.html 公共部分 + s0_open.js，替换占位符；
-3. 场景卡 s1、s2……，每张一个文件，按顺序派。卡里写明先读 style.md（意象、版面、动效节奏）和 hyperframes.md（写法限制、动画模式索引）；
+2. 骨架卡：index.html 一次写死——替换占位符、按约定文件名（sN_主题.js）引入全部场景 script、给每个场景放一个空 stub（`window.V.parts.push(function(){})`，这样任何时刻 lint/check 都能跑）、公共样式；附 s0_open.js。此后 index.html 冻结；
+3. 场景卡 s1、s2……，每张一个文件，**全部并行派**：场景专用样式用 scene() 的 css 参数写在各自文件里，不碰 index.html。卡里写明先读 style.md（意象、版面、动效节奏）和 hyperframes.md（写法限制、动画模式索引）；
 4. captions.js：字幕从 01_分片文案.md 原样抄，一个字都不改。只读文案、只写 captions.js，与第 3 批场景卡并行派；
 5. build_fonts.py + lint + check，修到通过；
 6. snapshot 自查，按 verify.md 的看图清单过一遍；

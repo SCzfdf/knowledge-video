@@ -19,6 +19,11 @@
     el.className = "scene";
     el.id = id;
     el.innerHTML = html;
+    if (css) {                        // 场景专用样式随场景文件走：index.html 由骨架卡写死后冻结，场景卡才能全并行
+      const st = document.createElement("style");
+      st.textContent = css;
+      el.appendChild(st);
+    }
     $("stage").appendChild(el);
     if (b0 > 0) tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out", ...IR }, at(b0));
     else el.style.opacity = 1;

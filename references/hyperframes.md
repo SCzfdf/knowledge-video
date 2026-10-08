@@ -39,6 +39,7 @@
 - 带独立时长的计时元素要有 `class="clip"`、`data-start` 和时长。用 core.js 的 scene() 挂在主时间线上的不需要。
 - 字幕换条用 0.02 秒硬切，最后一条 0.25 秒淡出（templates/captions.js 已写好）。
 - 时刻一律用 `at(小节, 拍)`，不要手写秒数，配乐换了也不用改。
+- 场景专用样式写在自己的场景文件里：`scene(id, html, b0, b1, css)` 的第 5 个参数（注入 `<style>` 随场景层走）。index.html 由骨架卡一次写死后冻结，场景卡不碰它——这样场景卡才能全并行（见 orchestration.md）。
 
 ## 3D 场景（Three.js，可选——具象主题优先，不硬用）
 
