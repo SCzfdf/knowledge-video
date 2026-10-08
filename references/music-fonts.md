@@ -45,7 +45,7 @@ asyncio.run(main())"
 
 ```bash
 "$PY" "$SK/scripts/build_music.py" <参考视频> <主题目录>/full --duration <第 5 小节重拍稍后> --fade 0.7   # 10 秒样片
-"$PY" "$SK/scripts/build_music.py" <参考视频> <主题目录>/full --fade 2.0                          # 完整版：整首 ≤60 秒才这样用
+"$PY" "$SK/scripts/build_music.py" <参考视频> <主题目录>/full --fade 2.0                          # 完整版：整首；要短加 --duration/--splice
 "$PY" "$SK/scripts/build_music.py" <参考视频> <主题目录>/full --splice 44.60:36.10 --fade 2.5     # 加长：播到 44.6 秒跳回 36.1 秒
 ```
 
@@ -55,7 +55,7 @@ asyncio.run(main())"
 - 打印的“低频相位强度”四个数里，最大的那个应该明显突出。四个数差不多大时，重拍可能判错，换一段鼓点清楚的片段。
 - `--splice`：两个时刻都会吸附到最近的小节重拍，接口处做 30 ms 等功率交叉淡化，节拍网格保持连续。
 - 样片的 `--duration` 取第 5 小节重拍稍后一点，正好覆盖第 0–4 小节。
-- 完整版成片控制在 1 分钟以内：整首超过 60 秒时，用 `--duration` 截到尾声前合适的小节重拍（配合 `--fade`），或用 `--splice` 剪掉中段；不要整首硬用。
+- 完整版长度按配乐定：可以整首，也可以用 `--duration` 截到尾声前合适的小节重拍（配合 `--fade`）、或用 `--splice` 剪掉中段；成片严格不超出配乐时长。
 
 ## 3. 小节换算
 
